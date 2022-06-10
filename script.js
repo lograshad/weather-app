@@ -1,56 +1,63 @@
-const cityForm = document.querySelector('form');
-const weatherInformation = document.querySelector('.weather-info');
 const weatherCard = document.querySelector('.weather-card');
+const locationForm = document.querySelector('.city-form');
+const weatherInfo = document.querySelector('.weather-info');
 const timeImg = document.querySelector('.placeholder');
 const icon = document.querySelector('.weather-icon img');
 
 
-const updateCity = async (city) => {
-    const cityDets = await getCity(city);
-    const weather = await getWeather(cityDets.Key);
+const updateLOC = async (loc) => {
+    const location = await getLoc(loc);
+    const weather = await getWeather(location.Key);
 
     return {
-        cityDets: cityDets, 
+        location: location,
         weather: weather
     }
-};
+}
 
-const updateUi = (data) => {
 
-    const cityDets = data.cityDets;
+const updateUI = (data) => {
+    const locDets = data.location;
     const weather =data.weather; 
 
-    weatherInformation.innerHTML = `
-    <div class="city-name">${cityDets.EnglishName}</div>
+    weatherInfo.innerHTML = `
+    <div class="city-name">${locDets.EnglishName}</div>
     <div class="condition">${weather.WeatherText}</div>
     <div class="temp">${weather.Temperature.Metric.Value} <span>&deg;C</span></div>
-    `;
-
-    weatherCard.style.display = "block"
+    `
 
     const iconSrc = `${weather.WeatherIcon}.svg`;
     icon.setAttribute('src', iconSrc);
 
     let timeSrc = null;
     if (weather.IsDayTime) {
-        timeSrc ='day.svg/';
+        timeSrc ='day.svg';
     } else {
         timeSrc ='night.svg'
     }
 
     timeImg.setAttribute('src', timeSrc)
+    scrollTo(0, document.body.scrollHeight);
+
+    console.log(data);
 }
 
-cityForm.addEventListener('submit', e => {
+
+locationForm.addEventListener('submit', e => {
+    const loc = locationForm.city.value.trim();
     e.preventDefault();
+    locationForm.reset();
+   
 
-    // get form values
-    const city = cityForm.city.value.trim();
-    cityForm.reset();
+    weatherCard.classList.remove('display');
 
-
-    updateCity(city)
-        .then(data => updateUi(data))
-        .catch(err => console.log(err));
+    updateLOC(loc)
+        .then(data => {
+            updateUI(data);
+        })
+        .catch(err => {
+            console.log(err);
+        })
+  
 
 });
